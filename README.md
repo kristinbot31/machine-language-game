@@ -4,7 +4,7 @@ A three-part text adventure that teaches music production basics —
 MIDI, rhythm and song structure, and Ableton Live 12.
 
 Built for someone who knows what music they like but has never opened
-a DAW before. Each game takes about 15–20 minutes. Play in any order.
+a DAW before. Each game takes about 5–10 minutes. Play in any order.
 
 Made in collaboration with Claude AI- designed by me. 
 **[Wild Creatrix](https://wildcreatrix.net/)**
