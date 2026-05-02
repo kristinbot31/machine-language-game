@@ -7,7 +7,7 @@ Built for someone who knows what music they like but has never opened
 a DAW before. Each game takes about 15–20 minutes. Play in any order.
 
 Made in collaboration with Claude AI- designed by me. 
-wildcreatrix.net
+**[Wild Creatrix](https://wildcreatrix.net/)**
 
 ## ▶ Play it
 
