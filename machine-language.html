@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MACHINE LANGUAGE — A Music Production Trilogy</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #050805;
+    color: #33ff66;
+    font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background-image: radial-gradient(ellipse at center, #0f1810 0%, #050805 100%);
+    padding: 20px 16px 60px;
+    position: relative;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+    z-index: 10;
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+    z-index: 11;
+  }
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header {
+    border-bottom: 1px solid #1a3a1a;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: #5fa86f;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .blink { animation: blink 1.2s step-end infinite; }
+  @keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
+  .story {
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    text-shadow: 0 0 6px rgba(51, 255, 102, 0.4);
+    min-height: 50vh;
+  }
+  .story-line {
+    opacity: 0;
+    animation: fadeIn 0.3s forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(2px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: #33ff66;
+    animation: blink 0.8s step-end infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+    box-shadow: 0 0 8px #33ff66;
+  }
+  .choices {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px dashed #1a3a1a;
+    animation: fadeIn 0.5s forwards;
+  }
+  .choices-label {
+    font-size: 11px;
+    color: #5fa86f;
+    margin-bottom: 14px;
+    letter-spacing: 0.15em;
+  }
+  .choice-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 1px solid #1a3a1a;
+    color: #33ff66;
+    font-family: inherit;
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-shadow: 0 0 6px rgba(51, 255, 102, 0.4);
+    line-height: 1.5;
+  }
+  .choice-btn:hover {
+    background: #0f2010;
+    border-color: #33ff66;
+    box-shadow: 0 0 12px rgba(51, 255, 102, 0.3), inset 0 0 12px rgba(51, 255, 102, 0.05);
+  }
+  .choice-btn:active { transform: scale(0.99); }
+  .choice-num {
+    color: #5fa86f;
+    margin-right: 10px;
+  }
+  .footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid #1a3a1a;
+    font-size: 10px;
+    color: #3a6a3a;
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 0.15em;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .skip-hint {
+    margin-top: 20px;
+    font-size: 11px;
+    color: #5fa86f;
+    opacity: 0.7;
+    text-align: center;
+  }
+
+  /* MENU SPECIFIC STYLES */
+  .menu-title {
+    font-size: clamp(36px, 9vw, 64px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    margin: 40px 0 4px;
+    text-shadow: 0 0 20px rgba(51, 255, 102, 0.4);
+  }
+  .menu-subtitle {
+    font-size: 12px;
+    color: #5fa86f;
+    letter-spacing: 0.4em;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+  .menu-intro {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #88cc99;
+    margin-bottom: 40px;
+    max-width: 600px;
+  }
+  .menu-intro strong {
+    color: #33ff66;
+    font-weight: normal;
+    text-shadow: 0 0 6px rgba(51, 255, 102, 0.4);
+  }
+  .game-card {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 1px solid #1a3a1a;
+    color: #33ff66;
+    font-family: inherit;
+    padding: 20px;
+    margin-bottom: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .game-card:hover {
+    background: #0f2010;
+    border-color: #33ff66;
+    box-shadow: 0 0 16px rgba(51, 255, 102, 0.25);
+    transform: translateY(-1px);
+  }
+  .game-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 11px;
+    color: #5fa86f;
+    letter-spacing: 0.2em;
+  }
+  .game-card-title {
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+    text-shadow: 0 0 8px rgba(51, 255, 102, 0.4);
+  }
+  .game-card-desc {
+    font-size: 13px;
+    color: #88cc99;
+    line-height: 1.6;
+  }
+  .game-card-status {
+    color: #ffaa33;
+    text-shadow: 0 0 6px rgba(255, 170, 51, 0.4);
+  }
+  .game-card.completed {
+    border-color: #2a5a2a;
+  }
+  .game-card.completed .game-card-status {
+    color: #33ff66;
+  }
+  .reset-btn {
+    margin-top: 20px;
+    background: transparent;
+    border: none;
+    color: #3a6a3a;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+    letter-spacing: 0.15em;
+    padding: 8px;
+    text-transform: uppercase;
+  }
+  .reset-btn:hover { color: #5fa86f; }
+
+  .menu-link {
+    display: inline-block;
+    margin-top: 30px;
+    color: #5fa86f;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+    cursor: pointer;
+    border-bottom: 1px dashed #1a3a1a;
+    padding-bottom: 4px;
+  }
+  .menu-link:hover { color: #33ff66; border-color: #33ff66; }
+</style>
+</head>
+<body>
+<div class="container" id="root"></div>
+
+<script>
+// ============================================================
+// MACHINE LANGUAGE — A Music Production Trilogy
+// ============================================================
+
+const GAMES = {
+  midi: {
+    id: "midi",
+    number: "01",
+    title: "MACHINE LANGUAGE",
+    subtitle: "A MIDI Hacker's Game",
+    description: "Reverse-engineer a sealed drum machine in your basement at 3:47 AM. Learn what MIDI actually is, how note numbers work, why velocity matters, and how channels let multiple instruments share one cable. The language behind every electronic track ever made.",
+    runtime: "15-20 min",
+  },
+  fundamentals: {
+    id: "fundamentals",
+    number: "02",
+    title: "PRESSURE & RELEASE",
+    subtitle: "Music Fundamentals",
+    description: "You're in the back of a black sedan, 90 minutes from a warehouse gig where the headliner just bailed. Build a track from the bones outward — tempo, kick, backbeat, groove, bass, song architecture, and the master concept that powers all of music: tension and release.",
+    runtime: "15-20 min",
+  },
+  ableton: {
+    id: "ableton",
+    number: "03",
+    title: "FIRST SESSION",
+    subtitle: "Ableton Live 12 Intro",
+    description: "Late night. Empty apartment. You open Ableton for the first time and walk through making a complete EBM-style track — Session vs Arrangement view, drum racks, the piano roll, Live 12's Build and Drop devices, automation, mixing, and exporting. Specifically tailored to Live 12 Intro.",
+    runtime: "15-20 min",
+  },
+};
+
+// ============================================================
+// STORY DATA
+// ============================================================
+
+const STORIES = {
+  // ===========================================================
+  // GAME 1: MIDI
+  // ===========================================================
+  midi: {
+    start: {
+      text: [
+        "3:47 AM. Your basement.",
+        "",
+        "On the workbench in front of you sits a TR-909 you found at an estate sale for $40. The previous owner sealed it shut. Glued the back panel. Soldered shut the MIDI ports. Whoever they were, they didn't want anyone touching what was inside.",
+        "",
+        "But you've already cracked the case. The PCB glows faintly. A small OLED display flickers a single line:",
+        "",
+        "  > AWAITING HANDSHAKE",
+        "",
+        "Your laptop is open. Ableton is loaded. A single MIDI cable coils between you and the machine like a question.",
+      ],
+      choices: [
+        { text: "Connect the MIDI cable and see what happens.", next: "handshake" },
+        { text: "First — what even IS MIDI? Pull up the manual.", next: "what_is_midi" },
+      ],
+    },
+    what_is_midi: {
+      text: [
+        "You flip open the yellowed manual. Page 1:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  MIDI = Musical Instrument Digital      │",
+        "  │  Interface. A protocol. Born 1983.      │",
+        "  │                                         │",
+        "  │  MIDI is NOT sound.                     │",
+        "  │  MIDI is INSTRUCTIONS about sound.      │",
+        "  │                                         │",
+        "  │  A MIDI message says things like:       │",
+        "  │   • play this note                      │",
+        "  │   • this hard                           │",
+        "  │   • for this long                       │",
+        "  │   • on this channel                     │",
+        "  │                                         │",
+        "  │  The receiving machine decides what     │",
+        "  │  the note actually SOUNDS like.         │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "You let that sit for a moment. The same MIDI note — say, C2 — could trigger a kick drum, a bass synth, a vocal sample, anything. MIDI is the score. The instrument is whatever's listening.",
+        "",
+        "That's why your laptop can talk to this 40-year-old drum machine at all. They speak the same language even though they were born decades apart.",
+      ],
+      choices: [
+        { text: "OK. Plug the cable in.", next: "handshake" },
+      ],
+    },
+    handshake: {
+      text: [
+        "You slide the 5-pin DIN connector into the MIDI IN port. The OLED flickers.",
+        "",
+        "  > HANDSHAKE OK",
+        "  > LISTENING ON CH 1",
+        "  > SEND NOTE TO PROCEED",
+        "",
+        "Channel 1. MIDI has 16 channels — think of them as 16 separate radio frequencies running through the same cable. The 909 is only listening to channel 1. If you send on channel 2, it ignores you completely.",
+        "",
+        "You open a MIDI track in Ableton. Set the output channel. Now: what note do you send?",
+        "",
+        "MIDI numbers every possible note from 0 to 127. Middle C is 60. Each number up = one semitone higher. C2 (the kick drum trigger on most drum machines) is 36.",
+      ],
+      choices: [
+        { text: "Send note 36 (C2). Standard kick trigger.", next: "first_kick" },
+        { text: "Send note 60 (Middle C). See what it does.", next: "wrong_note" },
+        { text: "Send note 127 (the highest possible). Why not.", next: "wrong_note_high" },
+      ],
+    },
+    first_kick: {
+      text: [
+        "You press the key. A single MIDI message fires down the cable:",
+        "",
+        "  NOTE ON | CH 1 | NOTE 36 | VELOCITY 100",
+        "",
+        "And then —",
+        "",
+        "  THUD.",
+        "",
+        "A kick drum. Deep, dry, mechanical. Exactly the sound that's been on a thousand records since 1983. The 909 received your instruction and converted it into voltage, into a speaker cone moving, into air pressure hitting your chest.",
+        "",
+        "The OLED updates:",
+        "",
+        "  > VOICE 1: KICK — TRIGGERED",
+        "  > VELOCITY RECEIVED: 100/127",
+        "  > AWAITING PATTERN",
+        "",
+        "Velocity. That's the third number. It goes 0–127 and represents how HARD you hit the note. 100 is medium-firm. 127 is hammering it. 1 is a whisper. On a drum, velocity usually controls volume and sometimes tone — a hard-hit kick sounds different from a soft one.",
+      ],
+      choices: [
+        { text: "Try the same note at velocity 127. Maximum impact.", next: "velocity_lesson" },
+        { text: "The machine wants a 'pattern.' Ask what that means.", next: "pattern_intro" },
+      ],
+    },
+    wrong_note: {
+      text: [
+        "You send note 60. Middle C.",
+        "",
+        "  TICK.",
+        "",
+        "A thin, papery hi-hat. Not what you wanted, but informative — the 909 has mapped different MIDI notes to different drum voices. Note 60 = closed hi-hat on this machine. Note 36 = kick. Note 38 = snare. And so on.",
+        "",
+        "This is called a DRUM MAP. Every drum machine and every drum sampler has one. When you load a kit in Ableton's Drum Rack, each pad is assigned a MIDI note. Hitting that note triggers that pad.",
+        "",
+        "The OLED scrolls:",
+        "",
+        "  > VOICE 7: HI-HAT CLOSED — TRIGGERED",
+        "  > TIP: SEND NOTE 36 FOR KICK",
+      ],
+      choices: [
+        { text: "Now send note 36. The kick.", next: "first_kick" },
+      ],
+    },
+    wrong_note_high: {
+      text: [
+        "You send note 127. The highest possible MIDI note.",
+        "",
+        "  ...",
+        "",
+        "Silence. The OLED displays:",
+        "",
+        "  > NOTE OUT OF RANGE",
+        "  > NO VOICE MAPPED TO 127",
+        "",
+        "Right. Just because MIDI CAN address notes 0–127 doesn't mean every instrument USES all of them. The 909 only has voices mapped to a small range — the actual drum sounds. Send a note outside that range and nothing happens. The instruction was valid; there was just nothing on the other end to receive it.",
+        "",
+        "Useful to know. In Ableton, this is why a Drum Rack might look 'broken' — you're playing notes that aren't mapped to anything.",
+      ],
+      choices: [
+        { text: "Send note 36 (C2). The kick.", next: "first_kick" },
+      ],
+    },
+    velocity_lesson: {
+      text: [
+        "You fire note 36 again, this time with velocity 127.",
+        "",
+        "  THWACK.",
+        "",
+        "Same note. Different feel. Louder, punchier, more aggressive — the 909's analog circuits respond to the harder hit by adding a sharper transient. The kick has TEETH now.",
+        "",
+        "You try velocity 30. Soft.",
+        "",
+        "  thump.",
+        "",
+        "Almost a ghost. Barely there. This is one of the secrets of programmed drums sounding HUMAN instead of robotic — varying velocity. A real drummer never hits with exactly the same force twice. If every kick in your pattern is at velocity 100, your beat will sound stiff. Mix in some 90s, some 110s, occasional 60s, and suddenly it breathes.",
+        "",
+        "  > VELOCITY VARIATION DETECTED",
+        "  > GROOVE COEFFICIENT: RISING",
+      ],
+      choices: [
+        { text: "OK — the machine wants a 'pattern.' What is that?", next: "pattern_intro" },
+      ],
+    },
+    pattern_intro: {
+      text: [
+        "The OLED clears and shows a grid:",
+        "",
+        "  STEP:  1 . . . 2 . . . 3 . . . 4 . . .",
+        "  KICK:  ■ . . . . . . . ■ . . . . . . .",
+        "  SNARE: . . . . ■ . . . . . . . ■ . . .",
+        "  HAT:   ■ . ■ . ■ . ■ . ■ . ■ . ■ . ■ .",
+        "",
+        "Sixteen steps. One bar. Each step is a 16th note — 1/16th of a measure. Your basic dance/EBM/industrial pattern lives on this grid.",
+        "",
+        "Reading top-down: kick on 1 and 3. Snare on 2 and 4 (the 'backbeat'). Hi-hat on every other step (8th notes). That's the skeleton of basically every Die Sexual song, every Atari Teenage Riot track, every techno banger ever made.",
+        "",
+        "In MIDI terms: you're sending a sequence of NOTE ON / NOTE OFF messages, timed precisely to a tempo. The drum machine's internal clock — or your DAW's clock — divides each beat into subdivisions and fires notes at the right moment.",
+        "",
+        "  > PROGRAM PATTERN OR LOAD PRESET?",
+      ],
+      choices: [
+        { text: "Program it manually. I want to feel the grid.", next: "program_pattern" },
+        { text: "Load a preset. Show me what 'right' looks like first.", next: "preset_pattern" },
+      ],
+    },
+    program_pattern: {
+      text: [
+        "You start dropping notes onto the grid one step at a time. Each click sends a MIDI message to the machine, which stores it in its internal sequencer.",
+        "",
+        "Step 1: kick. Step 5: snare. Step 9: kick. Step 13: snare. Hats on every odd step.",
+        "",
+        "You hit PLAY.",
+        "",
+        "  BOOM-tss-BOOM-tss-BOOM-tss-BOOM-tss",
+        "",
+        "It's alive. It's a four-on-the-floor pattern at 125 BPM — the holy tempo of EBM. The kick on every beat (a 'four-on-the-floor'), the snare on the 2 and the 4. This is the rhythmic engine that makes bodies move on a dancefloor.",
+        "",
+        "But something feels TOO neat. Too quantized. Every hit lands exactly on the grid. It sounds like a machine — which is fine, but you want it to feel like a machine that's been POSSESSED.",
+        "",
+        "  > PATTERN STORED",
+        "  > GROOVE: 0% (RIGID)",
+      ],
+      choices: [
+        { text: "Add velocity variation. Some hits harder, some softer.", next: "humanize" },
+        { text: "Push some notes slightly off the grid (swing/groove).", next: "swing" },
+        { text: "Leave it rigid. Atari Teenage Riot is supposed to feel mechanical.", next: "rigid" },
+      ],
+    },
+    preset_pattern: {
+      text: [
+        "You load preset 01: 'PROTOTYPE BEAT.' The 909 plays back a perfect four-on-the-floor at 125 BPM — kick on every beat, snare on 2 and 4, hats running 8th notes.",
+        "",
+        "  BOOM-tss-BOOM-tss-BOOM-tss-BOOM-tss",
+        "",
+        "It's the foundation of every EBM, techno, and industrial track ever made. Once your ear locks onto it you can hear it everywhere — under Die Sexual's basslines, under half of Nitzer Ebb, under Front 242. The four-on-the-floor is a workhorse for a reason: the kick on every beat is hypnotic, physically locking the listener into the tempo.",
+        "",
+        "But preset patterns are just starting points. You've heard this exact pattern a thousand times.",
+        "",
+        "  > PRESET LOADED",
+        "  > MODIFY OR PROCEED?",
+      ],
+      choices: [
+        { text: "I want to make it MINE. Let me program my own.", next: "program_pattern" },
+        { text: "Modify it — start by varying the velocities.", next: "humanize" },
+      ],
+    },
+    humanize: {
+      text: [
+        "You go back through the pattern and edit each note's velocity individually.",
+        "",
+        "  Kick on 1: velocity 120 (the downbeat — should HIT)",
+        "  Kick on 2: velocity 95 (slightly behind, breathing room)",
+        "  Kick on 3: velocity 115",
+        "  Kick on 4: velocity 90",
+        "",
+        "  Hats: alternating 100, 70, 100, 60, 100, 75...",
+        "",
+        "You hit play. The transformation is immediate. The pattern still pounds, but now it has DYNAMICS. The downbeat punches you in the chest; the off-beats whisper. The hi-hat shimmers instead of buzzing.",
+        "",
+        "This is what producers mean by 'humanizing' MIDI. Real instruments have natural variation. Programming variation back IN — even on a drum machine track that's supposed to sound mechanical — is what separates a beat that feels DEAD from one that feels ALIVE.",
+        "",
+        "  > GROOVE: 60%",
+        "  > THE MACHINE IS LISTENING",
+      ],
+      choices: [
+        { text: "Now add swing — push some notes slightly late.", next: "swing" },
+        { text: "Good enough. Add a bassline.", next: "bassline" },
+      ],
+    },
+    swing: {
+      text: [
+        "You enable the 909's SHUFFLE knob and turn it to about 56%.",
+        "",
+        "Suddenly every other 16th note delays by a tiny amount — maybe 30 milliseconds. You can barely see the difference on the grid, but you can FEEL it. The pattern goes from tick-tick-tick-tick to ti-ki ti-ki ti-ki ti-ki. It loosens. It struts.",
+        "",
+        "This is GROOVE. Or SWING. Or SHUFFLE — they're all related. In MIDI terms: you're shifting certain notes off the rigid grid by a few ticks. (A 'tick' is the smallest unit a sequencer can resolve — usually 480 or 960 ticks per quarter note.)",
+        "",
+        "Ableton has a 'Groove Pool' that does exactly this. You can apply different groove templates to a MIDI clip and instantly transform the feel. Some grooves are subtle. Some are aggressive. Some emulate specific famous drum machines (the MPC60 swing is legendary).",
+        "",
+        "  > GROOVE: 85%",
+        "  > THIS IS WHERE BODIES START MOVING",
+      ],
+      choices: [
+        { text: "Add a bassline. The kick needs a partner.", next: "bassline" },
+      ],
+    },
+    rigid: {
+      text: [
+        "You leave it locked to the grid. Mechanical. Inhuman. Relentless.",
+        "",
+        "And honestly? For Atari Teenage Riot, that's the POINT. Digital hardcore weaponizes the cold, robotic precision of machines. The lack of human feel isn't a bug — it's the whole aesthetic. It's what makes the music feel like an attack rather than a dance.",
+        "",
+        "There's a real artistic decision hiding in here: you don't HAVE to humanize MIDI. Sometimes the rigid grid is exactly what you want. Kraftwerk built a career on it. Front 242 built EBM on it. The choice depends on whether you want bodies to dance or to feel under siege.",
+        "",
+        "  > GROOVE: 0% (INTENTIONAL)",
+        "  > AESTHETIC: HARDCORE",
+      ],
+      choices: [
+        { text: "Add a bassline. The kick needs a partner.", next: "bassline" },
+      ],
+    },
+    bassline: {
+      text: [
+        "You patch a synthesizer into your setup and route a second MIDI track to it on CHANNEL 2.",
+        "",
+        "Remember those 16 channels? This is why they exist. The 909 listens on channel 1 for drums. Your synth listens on channel 2 for bass notes. Same cable, same protocol, two different conversations happening simultaneously. You could add a third channel for a lead, a fourth for pads, all the way up to 16.",
+        "",
+        "For an EBM bassline, you want something MENACING. Short notes. Low register. Locked tightly to the kick.",
+        "",
+        "  STEP:  1 . . . 2 . . . 3 . . . 4 . . .",
+        "  KICK:  ■ . . . . . . . ■ . . . . . . .",
+        "  BASS:  ■ ■ . ■ ■ ■ . ■ ■ ■ . ■ ■ ■ . ■",
+        "",
+        "All on note 28 (E1). Velocity around 110. Note length: very short — maybe a 32nd note. That staccato bite is what makes EBM basslines sound like a heart attack.",
+        "",
+        "You hit play. Kick + bass lock together. The room starts to feel smaller. This is the engine of every Die Sexual track you've ever loved.",
+      ],
+      choices: [
+        { text: "Add a melody on top.", next: "melody_choice" },
+        { text: "Strip it back. Keep it minimal and hypnotic.", next: "minimal_path" },
+      ],
+    },
+    melody_choice: {
+      text: [
+        "You add a third MIDI track on channel 3, routed to a darker pad synth. Now you need to decide what notes to play.",
+        "",
+        "Your bassline is on E1. So your melody should probably stay in the key of E — meaning the notes that 'belong' with E. The E minor scale has these notes: E, F#, G, A, B, C, D.",
+        "",
+        "(You don't need to memorize this. Ableton's piano roll can highlight 'in-key' notes for you. And Game 2 in this trilogy gets into music theory properly.)",
+        "",
+        "For dark electronic music, the minor scale is your best friend — minor = sad, menacing, mysterious. Major = bright, happy, resolved. EBM is almost always minor.",
+        "",
+        "  > NOTES IN KEY: E, F#, G, A, B, C, D",
+        "  > SEND MELODY ON CHANNEL 3",
+      ],
+      choices: [
+        { text: "Sparse, eerie melody. Just a few notes, lots of space.", next: "ending_sparse" },
+        { text: "Aggressive arpeggio — fast, repeating, hypnotic.", next: "ending_arp" },
+      ],
+    },
+    minimal_path: {
+      text: [
+        "You strip everything back to its essence. Kick. Bass. Hat. Nothing else.",
+        "",
+        "And you let it RUN. For minutes. The same pattern, looping, hypnotic. This is the secret weapon of techno and EBM — repetition isn't boring; repetition is HYPNOTIC. After 90 seconds of the same loop, your brain stops analyzing it and starts surrendering to it. That's the trance state the dancefloor lives for.",
+        "",
+        "In Ableton, you'd build this loop in SESSION VIEW — a grid of clips you can trigger and combine on the fly. Then when you want to make it a song, you'd record it into ARRANGEMENT VIEW, the timeline. (Don't worry — Game 3 will get into this.)",
+        "",
+        "  > MINIMAL CONFIGURATION LOCKED",
+        "  > THE MACHINE IS HUMMING",
+      ],
+      choices: [
+        { text: "End here. Save the patch and finish the night.", next: "ending_minimal" },
+      ],
+    },
+    ending_sparse: {
+      text: [
+        "You play three notes. E, then G, then B — held for two bars each. A simple minor triad, broken across time. It floats over the kick and bass like smoke.",
+        "",
+        "And suddenly the track has a VOICE. The drums and bass are the body; this melody is the breath. The space between the notes is doing as much work as the notes themselves.",
+        "",
+        "The OLED on the 909 fades to a single line:",
+        "",
+        "  > TRANSMISSION COMPLETE",
+        "",
+        "You did it. You reverse-engineered a sealed drum machine using nothing but MIDI messages, a few channels, and an understanding of how digital instructions become physical sound.",
+        "",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "",
+        "WHAT YOU NOW KNOW:",
+        "",
+        "  ◆ MIDI is instructions, not sound",
+        "  ◆ NOTE numbers (0–127) and what they trigger",
+        "  ◆ VELOCITY (0–127) and why variation matters",
+        "  ◆ CHANNELS (1–16) for routing multiple instruments",
+        "  ◆ The 16-step grid and four-on-the-floor",
+        "  ◆ Drum maps and why notes trigger different sounds",
+        "  ◆ Quantization, swing, and groove",
+        "  ◆ Layering: drums + bass + melody on different channels",
+        "  ◆ Minor keys for dark music",
+        "",
+        "When you open Ableton, all of this will be sitting there waiting for you. The MIDI track. The piano roll. The drum rack. The Groove Pool. You'll know what each of them is FOR.",
+      ],
+      choices: [
+        { text: "↺ Return to menu", next: "__menu__" },
+      ],
+      ending: true,
+    },
+    ending_arp: {
+      text: [
+        "You program an arpeggio: E, G, B, D — repeating, fast, every 16th note. A relentless cascade of minor notes climbing and falling.",
+        "",
+        "Combined with the four-on-the-floor and the staccato bass, the track becomes RELENTLESS. It's the kind of thing you'd hear at 2 AM in a dark club, lasers cutting through fog, bodies moving as one. This is the engine of dancefloor menace — the marriage of rigid rhythm and hypnotic melody.",
+        "",
+        "An arpeggio (or 'arp') is just a chord played one note at a time. In MIDI, you can program arps manually OR use a device like Ableton's Arpeggiator that takes a held chord and spits out the notes in sequence. Either way, the principle is the same: turn harmony into rhythm.",
+        "",
+        "The OLED scrolls:",
+        "",
+        "  > TRANSMISSION COMPLETE",
+        "  > MACHINE STATUS: WEAPONIZED",
+        "",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "",
+        "WHAT YOU NOW KNOW:",
+        "",
+        "  ◆ MIDI is instructions, not sound",
+        "  ◆ NOTE numbers (0–127) and what they trigger",
+        "  ◆ VELOCITY (0–127) and why variation matters",
+        "  ◆ CHANNELS (1–16) for routing multiple instruments",
+        "  ◆ The 16-step grid and four-on-the-floor",
+        "  ◆ Drum maps and why notes trigger different sounds",
+        "  ◆ Quantization, swing, and groove",
+        "  ◆ Layering: drums + bass + melody on different channels",
+        "  ◆ Arpeggios — chords as rhythm",
+        "  ◆ Minor keys for dark music",
+        "",
+        "When you open Ableton, all of this will be sitting there waiting for you.",
+      ],
+      choices: [
+        { text: "↺ Return to menu", next: "__menu__" },
+      ],
+      ending: true,
+    },
+    ending_minimal: {
+      text: [
+        "You save the patch. Three tracks: kick, bass, hat. Locked. Hypnotic. Brutal in its simplicity.",
+        "",
+        "Sometimes the most powerful production decision is what you DON'T add. A lot of EBM and minimal techno is built on the principle that less is more — let the listener lock into a groove and stay there. The drama comes from tiny changes over time: a filter sweep here, a hi-hat dropping out for two bars there, a single new note appearing in the bassline.",
+        "",
+        "You'll learn this in your bones once you start. The temptation when you first open Ableton is to ADD ADD ADD. The discipline of subtracting is what separates a producer from a hobbyist.",
+        "",
+        "  > PATCH SAVED",
+        "  > THE MACHINE GOES QUIET",
+        "",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "",
+        "WHAT YOU NOW KNOW:",
+        "",
+        "  ◆ MIDI is instructions, not sound",
+        "  ◆ NOTE numbers (0–127) and what they trigger",
+        "  ◆ VELOCITY (0–127) and why variation matters",
+        "  ◆ CHANNELS (1–16) for routing multiple instruments",
+        "  ◆ The 16-step grid and four-on-the-floor",
+        "  ◆ Drum maps and why notes trigger different sounds",
+        "  ◆ Quantization, swing, and groove",
+        "  ◆ Session View vs Arrangement View (briefly)",
+        "  ◆ The power of restraint",
+      ],
+      choices: [
+        { text: "↺ Return to menu", next: "__menu__" },
+      ],
+      ending: true,
+    },
+  },
+
+  // ===========================================================
+  // GAME 2: FUNDAMENTALS
+  // ===========================================================
+  fundamentals: {
+    start: {
+      text: [
+        "Friday. 10:47 PM. Back of a black sedan, moving through a city that hasn't slept yet.",
+        "",
+        "Your phone buzzes. It's the booker from the warehouse downtown. The headliner just bailed — food poisoning, allegedly. You have 90 minutes to put together a 45-minute set that makes 600 people lose their minds.",
+        "",
+        "Your laptop is open on the seat beside you. A folder of loops you've made over the past month. Drum hits. Bass stabs. A few synth sketches. But no actual TRACK. Nothing finished.",
+        "",
+        "You crack your knuckles.",
+        "",
+        "Music isn't just sound. It's a body, moving through time. Tonight you're going to learn how to build that body — from the bones outward.",
+        "",
+        "  > 90:00 REMAINING",
+        "  > AWAITING FIRST DECISION",
+      ],
+      choices: [
+        { text: "Start with tempo. How fast does it need to hit?", next: "tempo" },
+        { text: "Start with the kick drum. The foundation.", next: "kick_first_direct" },
+      ],
+    },
+    tempo: {
+      text: [
+        "Smart move. Tempo is the heartbeat of a track — measured in BPM, beats per minute. Everything else gets built around this number.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  TEMPO MAP                              │",
+        "  │                                         │",
+        "  │   70-90 BPM   slow / hip-hop / trap     │",
+        "  │   90-110 BPM  downtempo / classic R&B   │",
+        "  │   120-128 BPM house / EBM / sway tempo  │",
+        "  │   130-140 BPM techno / pump tempo       │",
+        "  │   140-160 BPM hard techno / trance      │",
+        "  │   160-180 BPM drum & bass / hardcore    │",
+        "  │   180+   BPM  digital hardcore / gabber │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "Your influences live in two different camps. Die Sexual sits at 125 BPM — hypnotic, sexy, body music. Atari Teenage Riot lives at 180+ — pure aggression, music that makes you want to break windows.",
+        "",
+        "BPM isn't just a number. It's a physical decision about what kind of motion you want to provoke. At 125, bodies SWAY. At 140, bodies PUMP. At 180, bodies RIOT.",
+        "",
+        "  > SET PROJECT TEMPO:",
+      ],
+      choices: [
+        { text: "125 BPM. Hypnotic. EBM body music.", next: "kick_first" },
+        { text: "140 BPM. Driving techno. No mercy.", next: "kick_first" },
+        { text: "180 BPM. Pure aggression. ATR mode.", next: "kick_first" },
+      ],
+    },
+    kick_first_direct: {
+      text: [
+        "You skip past tempo for now and go straight for the kick drum. Most producers do this — pick the kick first, set the tempo around how it feels.",
+        "",
+        "(For reference, you settle on 125 BPM in your head. Body music tempo. Die Sexual territory. We can revisit this later.)",
+        "",
+        "  > TEMPO SET: 125 BPM",
+      ],
+      choices: [
+        { text: "Continue to the kick.", next: "kick_first" },
+      ],
+    },
+    kick_first: {
+      text: [
+        "The kick drum. The most important sound in dance music, period.",
+        "",
+        "The kick is the GRAVITY of your track. Everything else orbits around it. Mess up the kick and nothing else will save you. Get the kick right and you can be sloppy with everything else and still have a hit.",
+        "",
+        "Dance music is built on a concept called FOUR ON THE FLOOR. The kick hits on every single beat:",
+        "",
+        "  STEP:  1 . . . 2 . . . 3 . . . 4 . . .",
+        "  KICK:  ■ . . . ■ . . . ■ . . . ■ . . .",
+        "",
+        "ONE-two-three-four. ONE-two-three-four. That's the engine that's powered disco, house, techno, EBM, and trance for fifty years. The reason it works is brutally simple — a kick on every beat lines up with your heartbeat and your footsteps. Your body literally cannot ignore it.",
+        "",
+        "You drop a kick on every quarter note and let it loop.",
+        "",
+        "  BOOM. BOOM. BOOM. BOOM.",
+        "",
+        "The car windows start to vibrate. The driver glances at you in the rearview mirror.",
+      ],
+      choices: [
+        { text: "Add the snare. Where does it go?", next: "snare" },
+        { text: "Skip the snare. Keep it minimal and brutal.", next: "no_snare" },
+      ],
+    },
+    snare: {
+      text: [
+        "The snare lives on beats TWO and FOUR. This is called the BACKBEAT.",
+        "",
+        "  STEP:  1 . . . 2 . . . 3 . . . 4 . . .",
+        "  KICK:  ■ . . . . . . . ■ . . . . . . .",
+        "  SNARE: . . . . ■ . . . . . . . ■ . . .",
+        "",
+        "ONE-TWO-three-FOUR. The kick punches the floor; the snare slaps your face. Together they make the basic groove that almost all popular Western music — rock, pop, hip-hop, dance — is built on.",
+        "",
+        "But here's what matters for YOUR music: in industrial, EBM, and digital hardcore, the snare is often replaced with something nastier. A clap. A noise burst. A distorted hand drum. Anything that hits hard on the 2 and the 4.",
+        "",
+        "Atari Teenage Riot famously used vicious, blown-out claps that sound like gunshots. Die Sexual uses tight, dry claps that crack like a whip. Same role in the song — wildly different feel.",
+        "",
+        "  > SELECT BACKBEAT VOICE:",
+      ],
+      choices: [
+        { text: "Distorted clap. Aggressive. Atari Teenage Riot.", next: "hats" },
+        { text: "Tight, dry clap. Whip-crack. Die Sexual.", next: "hats" },
+      ],
+    },
+    no_snare: {
+      text: [
+        "Bold choice. Some of the heaviest tracks ever made don't have a traditional backbeat.",
+        "",
+        "When you remove the snare, you create unease. Your brain EXPECTS the slap on the 2 and the 4 — that expectation is hardwired in from a lifetime of listening to popular music. When the slap doesn't come, the track feels relentless. Hypnotic. Wrong in the best possible way.",
+        "",
+        "A lot of dark techno, minimal EBM, and dub techno works exactly this way. The kick carries everything. The space where the snare would be becomes part of the atmosphere.",
+        "",
+        "  > BACKBEAT: NONE",
+        "  > AESTHETIC: HYPNOTIC / RELENTLESS",
+      ],
+      choices: [
+        { text: "Add hi-hats. Need something on top.", next: "hats" },
+      ],
+    },
+    hats: {
+      text: [
+        "Hi-hats. The smallest, fastest element of the drum kit.",
+        "",
+        "While the kick and snare provide the BODY of your beat, hi-hats provide the MOTION. They're what makes a beat feel like it's moving forward.",
+        "",
+        "Producers think in subdivisions of the beat:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  QUARTER NOTE  = 1 hit per beat         │",
+        "  │  EIGHTH NOTE   = 2 hits per beat        │",
+        "  │  SIXTEENTH     = 4 hits per beat        │",
+        "  │  THIRTY-SECOND = 8 hits per beat        │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "Most dance music puts hats on EIGHTH NOTES — eight hits per bar:",
+        "",
+        "  STEP:  1 . 1 . 2 . 2 . 3 . 3 . 4 . 4 .",
+        "  HAT:   ■ . ■ . ■ . ■ . ■ . ■ . ■ . ■ .",
+        "",
+        "Tss-tss-tss-tss-tss-tss-tss-tss. That feels like running.",
+        "",
+        "Speed it up to sixteenths and it feels like sprinting. Slow it down to quarters and it feels like walking.",
+        "",
+        "RULE OF THUMB: the fastest element in your drum pattern controls the perceived speed of the track — even more than the BPM does.",
+      ],
+      choices: [
+        { text: "Eighth-note hats. Classic, driving.", next: "groove" },
+        { text: "Sixteenth-note hats. Frantic, urgent.", next: "groove" },
+      ],
+    },
+    groove: {
+      text: [
+        "Your drums are locked. Now the most important question in all of music production:",
+        "",
+        "  > DOES IT GROOVE?",
+        "",
+        "GROOVE is the FEEL of a beat. It's the difference between a pattern that makes you nod your head and a pattern that just sits there.",
+        "",
+        "Groove comes from two things:",
+        "",
+        "  1. VELOCITY — how hard each hit lands (some loud, some soft)",
+        "  2. TIMING   — whether hits sit exactly on the grid or slightly off",
+        "",
+        "A robot plays every hit at the same volume, perfectly on the grid. A human plays some hits harder, some softer, some a tiny bit late or early. That tiny imperfection is what makes a beat feel ALIVE.",
+        "",
+        "Producers call this HUMANIZING.",
+        "",
+        "BUT — and this matters a lot for your kind of music — sometimes you don't WANT it to feel human. Atari Teenage Riot's whole thing is the inhuman precision of machines. The lack of groove IS the aesthetic. Kraftwerk made a career out of it. Front 242 weaponized it.",
+        "",
+        "Some music wants to feel like a body. Some music wants to feel like a weapon. The choice is yours.",
+      ],
+      choices: [
+        { text: "Humanize it. Loose, swung, breathing.", next: "bass" },
+        { text: "Keep it rigid. Machine-precise. Cold.", next: "bass" },
+      ],
+    },
+    bass: {
+      text: [
+        "Now the bassline.",
+        "",
+        "If the kick is the gravity, the bass is what keeps you locked to the floor. In a great EBM or techno track, the kick and bass become a single CONJOINED ELEMENT. You can't tell where one ends and the other begins. They breathe as one.",
+        "",
+        "The bassline lives in the LOW FREQUENCIES — below about 250 Hz. That's the territory you feel in your CHEST and STOMACH more than you hear with your ears. This is why basslines feel physical. They're literally moving your organs.",
+        "",
+        "And here's where music theory finally enters the picture: the bassline establishes the KEY of your song.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  A KEY = a family of notes that sound   │",
+        "  │  good together.                         │",
+        "  │                                         │",
+        "  │  MAJOR KEYS = bright, happy, resolved   │",
+        "  │  MINOR KEYS = dark, sad, menacing       │",
+        "  │                                         │",
+        "  │  Dark electronic music = minor keys.    │",
+        "  │  Almost always. EBM is rarely bright.   │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "The seven notes of a minor scale are your friends. You don't need to memorize them — every DAW will highlight the in-key notes for you. Pick a note, build the scale around it, and stay inside.",
+      ],
+      choices: [
+        { text: "One-note bassline. Locked to the kick. Hypnotic.", next: "structure" },
+        { text: "Moving bassline. Walks around inside the key.", next: "structure" },
+      ],
+    },
+    structure: {
+      text: [
+        "Your loop is alive. Drums and bass locked together, looping at 125 BPM. It SOUNDS good.",
+        "",
+        "But it's still a loop. Not a song. Now the harder problem — how do you turn a 4-bar loop into a 5-minute track that holds attention?",
+        "",
+        "Every dance track follows a similar architecture:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  INTRO     elements come in one by one  │",
+        "  │  BUILD     tension rises (riser, roll)  │",
+        "  │  DROP      everything explodes back in  │",
+        "  │  GROOVE    full track plays out         │",
+        "  │  BREAKDOWN strip elements away          │",
+        "  │  BUILD     rise again                   │",
+        "  │  DROP      bigger payoff                │",
+        "  │  OUTRO     elements fade out one by one │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "Producers think in 8-BAR and 16-BAR PHRASES. Most dance music changes SOMETHING every 8 bars — a new element comes in, an old one drops out, a filter sweeps, a vocal hits.",
+        "",
+        "The reason: at 125 BPM, 8 bars is about 15 seconds. That's roughly how long the human attention span can hold without something new happening before boredom sets in.",
+        "",
+        "  > 8 BARS = 1 PHRASE",
+        "  > 1 PHRASE = 15 SECONDS @ 125 BPM",
+        "  > MAKE SOMETHING HAPPEN EVERY PHRASE",
+      ],
+      choices: [
+        { text: "Long intro. Make them wait. Build slow tension.", next: "tension" },
+        { text: "Short intro. Hit them in the face from bar one.", next: "tension" },
+      ],
+    },
+    tension: {
+      text: [
+        "Here it is. The single most important concept in all of music:",
+        "",
+        "  > TENSION AND RELEASE",
+        "",
+        "Music isn't just sound. It's a series of EXPECTATIONS being created and then either satisfied or denied.",
+        "",
+        "When you build up energy — a riser sound, a snare roll, hi-hats getting busier, a filter slowly opening — listeners feel TENSION. Their bodies start anticipating something.",
+        "",
+        "When you finally release that energy — through a drop, a chord change, or just bringing the kick back in after a breakdown — listeners feel PLEASURE. Actual neurochemical pleasure. Dopamine.",
+        "",
+        "The bigger the tension, the bigger the release.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  This is why a 32-bar build into a drop │",
+        "  │  feels so good. You've made people WAIT.│",
+        "  │  By the time the kick comes back, their │",
+        "  │  bodies are STARVING for it.            │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "Every great track in your influences uses this. Atari Teenage Riot doesn't just play loud — they alternate chaos with brief moments of calm so the chaos hits harder. Die Sexual builds tension with sparse intros, repeated phrases, and slow filter sweeps before the full beat drops.",
+        "",
+        "The trick isn't being intense the whole time. The trick is the CONTRAST.",
+      ],
+      choices: [
+        { text: "Add a melody on top. The hook.", next: "melody" },
+        { text: "Skip melody. Let rhythm and bass be the hook.", next: "arrangement" },
+      ],
+    },
+    melody: {
+      text: [
+        "Melody is a sequence of notes that creates a memorable pattern. The HOOK of a song. The thing people hum on the way home.",
+        "",
+        "In dance music, melodies are usually very simple. Three or four notes. Repeated. Hypnotic.",
+        "",
+        "The reason: when you're on a dancefloor, sweating, drunk, locked into a groove, you cannot process complex melodies. Your brain doesn't have the bandwidth. You need something simple your body can lock onto.",
+        "",
+        "Your melody should stay in the same minor key as your bassline. If your bass is in E minor, your melody uses notes from the E minor scale:",
+        "",
+        "  E MINOR SCALE: E, F#, G, A, B, C, D",
+        "",
+        "Pick any of those. Combine them however. As long as you stay inside the scale, it will sound RIGHT. Step outside the scale and most listeners will hear it as 'wrong' — though sometimes a single 'wrong' note is exactly what makes a song memorable.",
+        "",
+        "Two melodic approaches that work for your kind of music:",
+      ],
+      choices: [
+        { text: "Sparse and atmospheric. Three slow notes. Eerie.", next: "arrangement" },
+        { text: "Repetitive arpeggio. Fast, hypnotic, relentless.", next: "arrangement" },
+      ],
+    },
+    arrangement: {
+      text: [
+        "You start arranging your loops onto a timeline. This is the moment a LOOP becomes a SONG.",
+        "",
+        "Here's what your track looks like:",
+        "",
+        "  BAR 1-16    kick + a riser, slowly louder",
+        "              [crowd settles in, heads turn]",
+        "",
+        "  BAR 17-32   bass enters",
+        "              [heads start nodding]",
+        "",
+        "  BAR 33-64   FULL BEAT — hats, claps, melody",
+        "              [the dancefloor opens up]",
+        "",
+        "  BAR 65-80   BREAKDOWN — drop everything",
+        "              except one haunting element",
+        "              [people stop. they look up. wait.]",
+        "",
+        "  BAR 81-96   16-BAR BUILD — snare rolls,",
+        "              risers, filter sweep opening",
+        "              [fists in the air]",
+        "",
+        "  BAR 97      THE DROP",
+        "              [the room loses its mind]",
+        "",
+        "  BAR 97-128  full track plays out",
+        "",
+        "  BAR 129-144 outro, elements fade",
+        "",
+        "This is the architecture. Every dance track you've ever loved is built on a version of this. The specific bar counts change, but the principle — TENSION AND RELEASE in cycles — never does.",
+        "",
+        "  > ARRANGEMENT COMPLETE",
+        "  > 4 MINUTES 47 SECONDS",
+      ],
+      choices: [
+        { text: "Continue to the warehouse.", next: "ending" },
+      ],
+    },
+    ending: {
+      text: [
+        "The car pulls up to the warehouse. Bass leaks through the walls onto the street — some opening DJ, warming the room up.",
+        "",
+        "Your laptop is loaded. Your set is built. Your hands are shaking, but in the good way.",
+        "",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "",
+        "WHAT YOU NOW KNOW:",
+        "",
+        "  ◆ BPM and what tempo means physically",
+        "  ◆ Four-on-the-floor and the backbeat",
+        "  ◆ Quarter, eighth, and sixteenth notes",
+        "  ◆ How fastest element controls perceived speed",
+        "  ◆ Groove and humanizing vs. machine-rigid",
+        "  ◆ Why kick + bass must lock together",
+        "  ◆ Low frequencies as physical sensation",
+        "  ◆ Major vs. minor keys (dark = minor)",
+        "  ◆ Scales as a 'family of notes'",
+        "  ◆ Song architecture: intro / build / drop /",
+        "    breakdown / build / drop / outro",
+        "  ◆ The 8-bar phrase and why",
+        "  ◆ Tension and release — the master concept",
+        "",
+        "Music is a body moving through time. You now understand its skeleton.",
+      ],
+      choices: [
+        { text: "↺ Return to menu", next: "__menu__" },
+      ],
+      ending: true,
+    },
+  },
+
+  // ===========================================================
+  // GAME 3: ABLETON
+  // ===========================================================
+  ableton: {
+    start: {
+      text: [
+        "It's late. The apartment is quiet. Your laptop is open on the desk and the Ableton Live 12 Intro splash screen has just faded.",
+        "",
+        "An empty session stares back at you. White-gray rows. A black ribbon of controls at the top. Some buttons whose function you don't yet know. A blinking cursor somewhere off to the side.",
+        "",
+        "If you've played the first two games, you know what MIDI is. You know about kicks, basslines, four-on-the-floor, tension and release. Now you have to actually make something.",
+        "",
+        "The first thing you need to understand is what you're looking at.",
+        "",
+        "  > LIVE 12 INTRO — NEW SET",
+        "  > 120.00 BPM | 4/4",
+        "  > 0 TRACKS",
+      ],
+      choices: [
+        { text: "What ARE these two views I keep hearing about?", next: "two_views" },
+        { text: "Forget views. Just show me where to put a kick drum.", next: "browser_intro" },
+      ],
+    },
+    two_views: {
+      text: [
+        "Ableton has two ways to look at a song. This is the single most important thing about the program — and what makes it different from every other DAW.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  SESSION VIEW (press TAB to toggle)     │",
+        "  │                                         │",
+        "  │  A grid of CLIPS arranged in columns    │",
+        "  │  and rows. Each column is a track.      │",
+        "  │  Each row is a SCENE.                   │",
+        "  │                                         │",
+        "  │  You trigger clips with the mouse or a  │",
+        "  │  controller. They loop. You can fire    │",
+        "  │  combinations on the fly.               │",
+        "  │                                         │",
+        "  │  This is where IDEAS happen.            │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  ARRANGEMENT VIEW (press TAB again)     │",
+        "  │                                         │",
+        "  │  A traditional timeline. Left to right. │",
+        "  │  Bar 1 to bar 200. Each track is a      │",
+        "  │  horizontal lane.                       │",
+        "  │                                         │",
+        "  │  You drag clips onto the timeline to    │",
+        "  │  build a song.                          │",
+        "  │                                         │",
+        "  │  This is where SONGS happen.            │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "Most producers brainstorm loops in Session View, then RECORD their performance into Arrangement View to turn it into a finished song. It's a workflow no other DAW has.",
+        "",
+        "On Intro you get up to 16 tracks and 16 scenes. That's plenty for your purposes.",
+      ],
+      choices: [
+        { text: "OK. Show me where to put a kick drum.", next: "browser_intro" },
+      ],
+    },
+    browser_intro: {
+      text: [
+        "You look to the left side of the screen. A panel called the BROWSER. This is where every sound, instrument, and effect in Ableton lives.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  BROWSER SECTIONS (left sidebar)        │",
+        "  │                                         │",
+        "  │  ◆ Sounds       — instrument presets    │",
+        "  │  ◆ Drums        — drum kits & one-shots │",
+        "  │  ◆ Instruments  — synths & samplers     │",
+        "  │  ◆ Audio Effects — EQ, reverb, etc.     │",
+        "  │  ◆ MIDI Effects — arp, scale, chord     │",
+        "  │  ◆ Samples      — raw audio files       │",
+        "  │  ◆ Packs        — themed sound libraries│",
+        "  │                                         │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "Live 12 added a beautiful new feature: as you click any sound in the browser, it PREVIEWS through your speakers automatically. You don't have to drag it anywhere first. This is huge — you can audition a hundred kick drums in a minute.",
+        "",
+        "There's also a search bar at the top of the browser. Type 'kick' and watch what happens.",
+      ],
+      choices: [
+        { text: "Search 'kick' and start auditioning sounds.", next: "kick_search" },
+        { text: "Wait — what's the difference between a Drum Rack and a single sample?", next: "drum_rack_explain" },
+      ],
+    },
+    drum_rack_explain: {
+      text: [
+        "Good question. Two ways to load drums in Ableton:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  SINGLE SAMPLE                          │",
+        "  │                                         │",
+        "  │  One audio file (a kick.wav) loaded     │",
+        "  │  into a single MIDI track. One sound,   │",
+        "  │  one note triggers it. Simple.          │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  DRUM RACK                              │",
+        "  │                                         │",
+        "  │  A grid of 16 pads, each holding a      │",
+        "  │  different drum sample. Pad 1 might be  │",
+        "  │  kick. Pad 2 snare. Pad 3 hat. Etc.     │",
+        "  │                                         │",
+        "  │  Each pad is mapped to a MIDI note      │",
+        "  │  (remember Game 1?). Note 36 = pad 1.   │",
+        "  │  Note 37 = pad 2. And so on up.         │",
+        "  │                                         │",
+        "  │  ONE MIDI track triggers ALL the drums. │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "For your kind of music — where you want kick, clap, hat, and percussion all locked tight together — you almost always want a DRUM RACK. It's faster to program and easier to edit.",
+        "",
+        "Bonus: Live 12 includes a feature called 'similar drum samples' — right-click any drum pad and Ableton will find replacement sounds that match the character of the original. Great for quickly trying variations.",
+      ],
+      choices: [
+        { text: "OK, search the browser for a Drum Rack preset.", next: "kick_search" },
+      ],
+    },
+    kick_search: {
+      text: [
+        "You type 'drum rack' in the browser search and a long list appears. Live 12 Intro's Core Library includes drum kits across many styles. For dark electronic music, look for kits tagged 'EBM,' 'Industrial,' 'Techno,' or 'Electronic.'",
+        "",
+        "You click one. It previews. Snare too thin. You click another. Kick too soft. Another. Closer. Another...",
+        "",
+        "  *click*  TSS - thin",
+        "  *click*  thmp - flabby",
+        "  *click*  BOOM - that's it",
+        "",
+        "You drag the Drum Rack into the empty session.",
+        "",
+        "  > NEW MIDI TRACK CREATED",
+        "  > DRUM RACK LOADED",
+        "  > READY FOR INPUT",
+        "",
+        "A track now exists. The drum rack appears at the bottom of the screen — 16 pads, with samples loaded into the bottom-left four (kick, clap, closed hat, open hat). The other pads are empty.",
+        "",
+        "Now you need to put NOTES into a clip.",
+      ],
+      choices: [
+        { text: "Create an empty clip and program a beat.", next: "first_clip" },
+      ],
+    },
+    first_clip: {
+      text: [
+        "In Session View, you double-click an empty cell on the drum track. An empty MIDI clip is created — a 1-bar loop by default. Ableton automatically opens the PIANO ROLL at the bottom of the screen.",
+        "",
+        "The piano roll is where you DRAW NOTES. It's just a grid: time goes left to right, pitch goes up to down. Each row corresponds to a MIDI note number. Since you're working with a Drum Rack, the rows are labeled with the pad names — kick, clap, hat, etc.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  PIANO ROLL — DRUM EDIT VIEW            │",
+        "  │                                         │",
+        "  │             1.1   1.2   1.3   1.4       │",
+        "  │  Open Hat   .  .   .  .   .  .   .  .   │",
+        "  │  Closed Hat .  .   .  .   .  .   .  .   │",
+        "  │  Clap       .  .   .  .   .  .   .  .   │",
+        "  │  Kick       .  .   .  .   .  .   .  .   │",
+        "  │                                         │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "You activate the PENCIL TOOL (press B). Now clicking anywhere on the grid draws a note.",
+        "",
+        "Time to build that four-on-the-floor pattern from Game 2. Kick on every beat. Clap on 2 and 4. Hats on every eighth note.",
+      ],
+      choices: [
+        { text: "Draw the pattern. Kick first.", next: "draw_kick" },
+      ],
+    },
+    draw_kick: {
+      text: [
+        "You click on the Kick row at positions 1.1, 1.2, 1.3, and 1.4. Four notes appear.",
+        "",
+        "You click on the Clap row at 1.2 and 1.4. Two notes.",
+        "",
+        "You click on Closed Hat at every eighth note position — 1.1, 1.1.3, 1.2, 1.2.3, 1.3, 1.3.3, 1.4, 1.4.3. Eight notes.",
+        "",
+        "You hit the SPACE BAR. The clip plays.",
+        "",
+        "  BOOM-tss-CLAP-tss-BOOM-tss-CLAP-tss",
+        "  BOOM-tss-CLAP-tss-BOOM-tss-CLAP-tss",
+        "",
+        "Your first beat. Looping. Playing through your headphones at exactly 120 BPM (Live's default tempo — you'll change it in a second).",
+        "",
+        "  > CLIP PLAYING",
+        "  > 120 BPM",
+        "  > LOOP: 1 BAR",
+        "",
+        "Wait — your influences live at 125 BPM. Time to change the project tempo. You click the BPM number in the top-left of the screen and type 125.",
+        "",
+        "  > TEMPO: 125 BPM",
+        "  > GROOVE COEFFICIENT: PROMISING",
+      ],
+      choices: [
+        { text: "Add velocity variation to humanize it.", next: "velocity_edit" },
+        { text: "Skip humanizing — keep it rigid (ATR-style).", next: "add_bass" },
+      ],
+    },
+    velocity_edit: {
+      text: [
+        "Below the piano roll, you see a small panel of VERTICAL BARS — one bar for each note. Those are velocity bars. Each one represents how hard that note hits.",
+        "",
+        "Right now they're all the same height (default velocity 100). Boring. Robotic.",
+        "",
+        "You drag the bars to vary the kick velocities:",
+        "",
+        "  Kick 1.1: drag UP to 120 (the downbeat — punchy)",
+        "  Kick 1.2: drag DOWN to 95",
+        "  Kick 1.3: drag UP to 115",
+        "  Kick 1.4: drag DOWN to 90",
+        "",
+        "  Hats: alternate 100, 70, 100, 60, 100, 75, 100, 65",
+        "",
+        "Hit space. The pattern plays again — but now it BREATHES. The downbeat punches you in the chest. The off-beats whisper. The hi-hats shimmer instead of buzzing.",
+        "",
+        "Same notes. Same timing. Just different velocities. Beat goes from dead to alive.",
+        "",
+        "  > VELOCITY VARIATION APPLIED",
+        "  > GROOVE COEFFICIENT: RISING",
+      ],
+      choices: [
+        { text: "Now add a bassline.", next: "add_bass" },
+      ],
+    },
+    add_bass: {
+      text: [
+        "You drag a new MIDI track into the session. Empty. You search the browser for a bass synth.",
+        "",
+        "Live 12 Intro doesn't have Operator or Analog (those are Standard/Suite only). But it DOES have:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  WHAT YOU HAVE FOR BASS IN INTRO        │",
+        "  │                                         │",
+        "  │  ◆ Drift — a powerful new analog-style  │",
+        "  │    synth added in Live 12               │",
+        "  │  ◆ Meld — bi-timbral textural synth     │",
+        "  │  ◆ Bass presets in the Sounds browser   │",
+        "  │  ◆ Simpler — load any audio sample as   │",
+        "  │    a playable instrument                │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "For dark, menacing EBM bass, you want something with grit. Search for 'bass' in the browser, filter by 'dark' or 'analog' character (Live 12's new tag system makes this fast).",
+        "",
+        "You audition a few presets. Land on one called something like 'Sub Growl' or 'EBM Bass.' Drag it onto the new track.",
+        "",
+        "  > NEW MIDI TRACK CREATED",
+        "  > INSTRUMENT: DRIFT (Sub Growl preset)",
+      ],
+      choices: [
+        { text: "Program a bassline locked to the kick.", next: "bass_pattern" },
+      ],
+    },
+    bass_pattern: {
+      text: [
+        "You double-click an empty clip cell on the bass track. New MIDI clip. Piano roll opens.",
+        "",
+        "This is a regular piano roll, not a drum view — so the rows are pitches (notes) instead of drum pads. C, D, E, F, G, A, B and their sharps/flats.",
+        "",
+        "Now — Game 2 said dark electronic music lives in MINOR keys. So you click the KEY/SCALE button at the top of the piano roll. A new Live 12 feature — you select the key (E minor) and scale type (minor). The piano roll now HIGHLIGHTS the in-key notes and dims the out-of-key ones. You literally cannot pick a wrong note as long as you stay in the highlights.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  E MINOR HIGHLIGHTED                    │",
+        "  │  In-key:  E F# G A B C D                │",
+        "  │  Out:     C# D# F G# A#                 │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "You program a hypnotic bassline. Note E1 (low E), repeating in time with the kick:",
+        "",
+        "  STEP:  1 . . . 2 . . . 3 . . . 4 . . .",
+        "  KICK:  ■ . . . ■ . . . ■ . . . ■ . . .",
+        "  BASS:  ■ ■ . ■ ■ ■ . ■ ■ ■ . ■ ■ ■ . ■",
+        "",
+        "Short notes. Staccato. Locked tightly to the kick. You hit space.",
+        "",
+        "  BOOM-bm-bm-BOOM-bm-bm-BOOM-bm-bm-BOOM-bm-bm",
+        "",
+        "The kick and bass have FUSED. They breathe as one. This is the heart of EBM.",
+      ],
+      choices: [
+        { text: "Sound great but a bit clean. Add some grit.", next: "audio_effects" },
+        { text: "Move on to song structure.", next: "session_to_arrangement" },
+      ],
+    },
+    audio_effects: {
+      text: [
+        "Time to add EFFECTS. In Ableton, you drag effects from the browser onto a track and they process the sound on its way to the master output.",
+        "",
+        "Effects work in CHAINS — each effect feeds into the next. So you can stack EQ → Saturator → Compressor → Reverb on a single track.",
+        "",
+        "For EBM bass grit, three Live 12 Intro devices matter most:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  SATURATOR                              │",
+        "  │  Adds harmonic distortion. Warmth at    │",
+        "  │  low settings, full destruction at      │",
+        "  │  high. The new Bass Shaper curve in     │",
+        "  │  Live 12 is great for synth bass.       │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  ROAR (NEW IN LIVE 12)                  │",
+        "  │  A coloration/distortion device with    │",
+        "  │  three saturation stages. Can run them  │",
+        "  │  in series, parallel, or per frequency  │",
+        "  │  band. Go-to for aggressive textures.   │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  EQ EIGHT                               │",
+        "  │  Eight-band equalizer. Cut frequencies  │",
+        "  │  you don't want, boost ones you do.     │",
+        "  │  ALWAYS high-pass your bass at 30Hz to  │",
+        "  │  remove sub-rumble. Cut bass mud at     │",
+        "  │  200-400Hz if it sounds boxy.           │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "You drag Roar onto your bass track. Tweak the drive knob. The bass goes from clean to GRINDING. Perfect.",
+      ],
+      choices: [
+        { text: "Now arrange this into a song.", next: "session_to_arrangement" },
+      ],
+    },
+    session_to_arrangement: {
+      text: [
+        "You have two clips: drums and bass. Both looping in Session View. Sounds great. But it's still a LOOP, not a song.",
+        "",
+        "Time to use Ableton's secret weapon — recording a session performance into Arrangement View.",
+        "",
+        "Here's the workflow that nothing else does as well as Ableton:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  SESSION → ARRANGEMENT WORKFLOW         │",
+        "  │                                         │",
+        "  │  1. In Session View, hit the global     │",
+        "  │     RECORD button (red circle, top)     │",
+        "  │                                         │",
+        "  │  2. Hit play.                           │",
+        "  │                                         │",
+        "  │  3. Trigger clips on the fly. Bring     │",
+        "  │     the kick in. Add bass. Drop the     │",
+        "  │     drums. Bring them back.             │",
+        "  │                                         │",
+        "  │  4. When done, hit stop and TAB to      │",
+        "  │     Arrangement View.                   │",
+        "  │                                         │",
+        "  │  5. Your performance has been recorded  │",
+        "  │     onto the timeline. You can now      │",
+        "  │     edit, refine, and finalize.         │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "This means you can perform a track LIKE A DJ — making decisions in real time about when to bring elements in and out — and Ableton captures everything you did.",
+        "",
+        "Or, if you prefer, you can skip Session View entirely and just drag clips directly into the Arrangement timeline. Both work.",
+      ],
+      choices: [
+        { text: "Use the Session-to-Arrangement workflow.", next: "live12_build_drop" },
+        { text: "Drag clips directly into Arrangement.", next: "live12_build_drop" },
+      ],
+    },
+    live12_build_drop: {
+      text: [
+        "Now in Arrangement View, you start sculpting an actual song. Remember the architecture from Game 2 — intro, build, drop, breakdown, build, drop, outro.",
+        "",
+        "Live 12 Intro added two devices that make this MUCH easier than it used to be:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  BUILD AND DROP (NEW IN LIVE 12)        │",
+        "  │                                         │",
+        "  │  Two MIDI generator devices that ship   │",
+        "  │  with Live 12 Intro:                    │",
+        "  │                                         │",
+        "  │  ◆ Build — automatically creates riser  │",
+        "  │    patterns, snare rolls, and tension   │",
+        "  │    sequences over a chosen number of    │",
+        "  │    bars. Drop it on a track, set the    │",
+        "  │    length, and you have an instant      │",
+        "  │    build-up section.                    │",
+        "  │                                         │",
+        "  │  ◆ Drop — generates impact patterns and │",
+        "  │    arrangement variations for the       │",
+        "  │    drop moment.                         │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "These weren't in Live 11 Intro. They were added specifically because so many producers struggle with builds and drops. Ableton basically gave you cheat codes.",
+        "",
+        "You set up your timeline:",
+        "",
+        "  Bar 1-16:    drums alone, gradually filtering in",
+        "  Bar 17-32:   bass enters",
+        "  Bar 33-64:   FULL BEAT",
+        "  Bar 65-72:   breakdown — drums OUT, bass alone",
+        "  Bar 73-80:   8-bar build (use Build device)",
+        "  Bar 81:      THE DROP",
+        "  Bar 81-128:  full track plays out",
+        "  Bar 129-144: outro fade",
+      ],
+      choices: [
+        { text: "Add automation — make filters sweep, volumes change.", next: "automation" },
+        { text: "Skip ahead to mixing the track.", next: "mixing" },
+      ],
+    },
+    automation: {
+      text: [
+        "AUTOMATION is how you make a parameter CHANGE OVER TIME. It's how a filter slowly opens. How a volume fades in. How a reverb gets louder during a breakdown.",
+        "",
+        "In Arrangement View:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  HOW TO AUTOMATE                        │",
+        "  │                                         │",
+        "  │  1. Click the small triangle on a track │",
+        "  │     header to expand the automation     │",
+        "  │     lane underneath.                    │",
+        "  │                                         │",
+        "  │  2. Pick the parameter you want to      │",
+        "  │     automate from the dropdown          │",
+        "  │     (Volume, Cutoff, Resonance, etc.)   │",
+        "  │                                         │",
+        "  │  3. Click in the lane to add breakpoints│",
+        "  │     and drag them to draw a curve.      │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "Three automation moves that will instantly make your track sound professional:",
+        "",
+        "  ◆ FILTER SWEEP on bass during the breakdown — slowly closes a low-pass filter so the bass dims, then opens it for the drop.",
+        "",
+        "  ◆ VOLUME RAMPS on the riser sound during the build — silence to full over 8 bars.",
+        "",
+        "  ◆ HIGH-PASS FILTER on the master during the build — gradually removes low frequencies so the drop hits HARDER when bass returns.",
+        "",
+        "These three moves alone separate a beginner from a producer who has done this before.",
+      ],
+      choices: [
+        { text: "Move on to mixing.", next: "mixing" },
+      ],
+    },
+    mixing: {
+      text: [
+        "MIXING is the final step. It's the art of making all your tracks sound GOOD TOGETHER instead of just good individually.",
+        "",
+        "Mixing is a deep rabbit hole, but here are the four moves you need on day one:",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  THE FOUR DAY-ONE MIXING MOVES          │",
+        "  │                                         │",
+        "  │  1. VOLUME BALANCE                      │",
+        "  │     Drag the faders so kick and bass    │",
+        "  │     are loudest, drums sit just under,  │",
+        "  │     melody/pads are softer in the back. │",
+        "  │                                         │",
+        "  │  2. EQ EIGHT — CUT, DON'T BOOST         │",
+        "  │     On every track, find the muddy      │",
+        "  │     frequency (200-500Hz usually) and   │",
+        "  │     cut it slightly. The mix will       │",
+        "  │     instantly clear up.                 │",
+        "  │                                         │",
+        "  │  3. COMPRESSION ON THE BASS             │",
+        "  │     Add a Compressor with ratio ~4:1,   │",
+        "  │     threshold so the meter shows 3-6dB  │",
+        "  │     of gain reduction. Bass becomes     │",
+        "  │     even and powerful.                  │",
+        "  │                                         │",
+        "  │  4. LIMITER ON THE MASTER               │",
+        "  │     Drop a Limiter on the master track  │",
+        "  │     with ceiling at -1.0dB. Brings up   │",
+        "  │     overall loudness without clipping.  │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "There's a thousand more techniques, but these four will get you 80% of the way to a track that sounds 'real.'",
+      ],
+      choices: [
+        { text: "Export the track. Send it to your phone.", next: "export" },
+      ],
+    },
+    export: {
+      text: [
+        "Time to EXPORT — bouncing your track from Ableton's internal world out into a finished audio file you can play anywhere.",
+        "",
+        "  ┌─────────────────────────────────────────┐",
+        "  │  HOW TO EXPORT                          │",
+        "  │                                         │",
+        "  │  1. Set the LOOP BRACE in Arrangement   │",
+        "  │     View to cover bar 1 through your    │",
+        "  │     final outro bar. (Drag the orange   │",
+        "  │     bracket at the top.)                │",
+        "  │                                         │",
+        "  │  2. File → Export Audio/Video           │",
+        "  │     (Cmd+Shift+R or Ctrl+Shift+R)       │",
+        "  │                                         │",
+        "  │  3. Choose format:                      │",
+        "  │     ◆ WAV   — uncompressed, biggest     │",
+        "  │     ◆ AIFF  — uncompressed, Mac native  │",
+        "  │     ◆ MP3   — compressed, small         │",
+        "  │     ◆ FLAC  — compressed, lossless      │",
+        "  │                                         │",
+        "  │  4. Choose 'Master' as the rendered     │",
+        "  │     track for a single mixed file.      │",
+        "  │                                         │",
+        "  │  5. Pick destination. Hit Export.       │",
+        "  └─────────────────────────────────────────┘",
+        "",
+        "For sharing online or on your phone, MP3 at 320kbps is fine. For sending to a label, mastering engineer, or DJ, always export WAV at 24-bit, 44.1kHz.",
+        "",
+        "A progress bar runs across the screen. When it finishes, your file appears in the destination folder.",
+        "",
+        "  > TRACK_001.WAV — RENDERED",
+        "  > 4 MIN 47 SEC",
+        "  > 125 BPM",
+      ],
+      choices: [
+        { text: "Play it back. See what you made.", next: "ending" },
+      ],
+    },
+    ending: {
+      text: [
+        "You drop the file onto your phone. Headphones in. Hit play.",
+        "",
+        "  BOOM. BOOM. BOOM. BOOM.",
+        "",
+        "Your kick. Your bass. The clap on the 2 and 4. The hats running on eighth notes. The 16-bar intro you wrote. The breakdown where you dropped everything except the bass and held people in suspense. The build that took 8 bars to develop. The DROP at bar 81 where everything came back in louder than before.",
+        "",
+        "It's not Die Sexual yet. It's not Atari Teenage Riot yet. But it IS a track. Yours. Made from scratch. In one sitting.",
+        "",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "",
+        "WHAT YOU NOW KNOW:",
+        "",
+        "  ◆ Session View vs. Arrangement View",
+        "  ◆ The Browser and how to audition sounds",
+        "  ◆ Drum Racks vs. single samples",
+        "  ◆ MIDI clips and the piano roll",
+        "  ◆ Velocity editing for groove",
+        "  ◆ Loading instruments (Drift, Meld, presets)",
+        "  ◆ Live 12's Keys & Scales feature",
+        "  ◆ Audio effects: Saturator, Roar, EQ Eight",
+        "  ◆ Recording Session into Arrangement",
+        "  ◆ The Build and Drop devices (new in Live 12)",
+        "  ◆ Automation lanes",
+        "  ◆ The four day-one mixing moves",
+        "  ◆ Exporting WAV and MP3",
+        "",
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━",
+        "",
+        "WHAT TO DO NEXT (REAL ADVICE):",
+        "",
+        "  1. Open Ableton. Right now. Don't 'study' first.",
+        "",
+        "  2. Spend 30 minutes just AUDITIONING sounds in",
+        "     the browser. No pressure to make anything.",
+        "     Build your taste.",
+        "",
+        "  3. Make a 1-bar drum loop. Just that. Save it.",
+        "",
+        "  4. Tomorrow, add a bass to that loop.",
+        "",
+        "  5. Day 3, copy it into Arrangement and try to",
+        "     build an intro and a drop.",
+        "",
+        "  6. Don't try to finish a 'song' for the first",
+        "     month. Make 30 sketches. Finish nothing.",
+        "     This is how every producer learns.",
+        "",
+        "Watch Die Sexual interviews. Watch Atari Teenage Riot videos. Steal liberally. Every producer you love started by copying their heroes badly until they accidentally became themselves.",
+        "",
+        "  > END OF GAME 03",
+        "  > GO MAKE NOISE.",
+      ],
+      choices: [
+        { text: "↺ Return to menu", next: "__menu__" },
+      ],
+      ending: true,
+    },
+  },
+};
+
+// ============================================================
+// STATE & PERSISTENCE
+// ============================================================
+
+const STORAGE_KEY = "machine_language_completed_v1";
+
+function getCompleted() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return {};
+    return JSON.parse(raw);
+  } catch (e) {
+    return {};
+  }
+}
+
+function setCompleted(gameId) {
+  try {
+    const completed = getCompleted();
+    completed[gameId] = true;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(completed));
+  } catch (e) {}
+}
+
+function resetProgress() {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {}
+}
+
+// ============================================================
+// VIEWS
+// ============================================================
+
+let currentScreen = "menu";  // "menu" | "game"
+let currentGame = null;       // game id
+let currentNode = null;       // node id within game
+let displayedLines = [];
+let isTyping = false;
+let typingTimeout = null;
+let choicesMade = 0;
+
+const root = document.getElementById("root");
+
+function clearTyping() {
+  if (typingTimeout) {
+    clearTimeout(typingTimeout);
+    typingTimeout = null;
+  }
+}
+
+function renderMenu() {
+  clearTyping();
+  currentScreen = "menu";
+  const completed = getCompleted();
+  const completedCount = Object.keys(completed).length;
+
+  let html = `
+    <div class="header">
+      <span>● MACHINE_LANGUAGE.exe</span>
+      <span class="blink">▮ TRILOGY_v01</span>
+    </div>
+    <h1 class="menu-title">MACHINE</h1>
+    <h1 class="menu-title">LANGUAGE</h1>
+    <div class="menu-subtitle">A Music Production Trilogy</div>
+    <div class="menu-intro">
+      Three short text adventures that teach the foundations of electronic music production — the language (MIDI), the body (rhythm and structure), and the tool (Ableton Live 12 Intro).
+      <br><br>
+      Each one takes about <strong>15-20 minutes</strong>. You can play them in any order, but they were designed to compound — Game 1 sets up Game 2, which sets up Game 3.
+      <br><br>
+      Made for anyone who wants to make music that sounds like Atari Teenage Riot kissing Die Sexual on a dancefloor at 3 AM.
+    </div>
+  `;
+
+  Object.values(GAMES).forEach((game) => {
+    const isCompleted = !!completed[game.id];
+    html += `
+      <button class="game-card ${isCompleted ? 'completed' : ''}" data-game="${game.id}">
+        <div class="game-card-header">
+          <span>GAME ${game.number} · ${game.runtime}</span>
+          <span class="game-card-status">${isCompleted ? '✓ COMPLETED' : '◇ NEW'}</span>
+        </div>
+        <div class="game-card-title">${game.title}</div>
+        <div class="game-card-desc">${game.description}</div>
+      </button>
+    `;
+  });
+
+  html += `
+    <div class="footer">
+      <span>${completedCount} / 3 ADVENTURES COMPLETED</span>
+      ${completedCount > 0 ? '<button class="reset-btn" id="reset-btn">[ Reset Progress ]</button>' : '<span></span>'}
+    </div>
+  `;
+
+  root.innerHTML = html;
+
+  document.querySelectorAll(".game-card").forEach((card) => {
+    card.addEventListener("click", () => {
+      startGame(card.dataset.game);
+    });
+  });
+
+  const resetBtn = document.getElementById("reset-btn");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      if (confirm("Reset all progress? You'll lose your completion checkmarks.")) {
+        resetProgress();
+        renderMenu();
+      }
+    });
+  }
+}
+
+function startGame(gameId) {
+  currentScreen = "game";
+  currentGame = gameId;
+  currentNode = "start";
+  choicesMade = 0;
+  renderNode();
+}
+
+function renderNode() {
+  clearTyping();
+  const game = STORIES[currentGame];
+  const node = game[currentNode];
+  if (!node) {
+    renderMenu();
+    return;
+  }
+
+  displayedLines = [];
+  isTyping = true;
+
+  const completed = getCompleted();
+  if (node.ending && !completed[currentGame]) {
+    setCompleted(currentGame);
+  }
+
+  drawFrame();
+
+  // Typewriter effect
+  let lineIdx = 0;
+  const lines = node.text;
+  const showLine = () => {
+    if (lineIdx >= lines.length) {
+      isTyping = false;
+      drawFrame();
+      return;
+    }
+    displayedLines.push(lines[lineIdx]);
+    const justAdded = lines[lineIdx];
+    lineIdx++;
+    drawFrame();
+    typingTimeout = setTimeout(showLine, justAdded === "" ? 80 : 180);
+  };
+  typingTimeout = setTimeout(showLine, 100);
+}
+
+function drawFrame() {
+  const game = STORIES[currentGame];
+  const node = game[currentNode];
+  const gameMeta = GAMES[currentGame];
+
+  let storyHtml = "";
+  displayedLines.forEach((line, idx) => {
+    const safeLine = (line === "" ? "\u00A0" : escapeHtml(line));
+    storyHtml += `<div class="story-line" style="animation-delay:${idx * 0.02}s">${safeLine}</div>`;
+  });
+  if (isTyping) {
+    storyHtml += `<span class="cursor"></span>`;
+  }
+
+  let choicesHtml = "";
+  if (!isTyping) {
+    choicesHtml = `
+      <div class="choices">
+        <div class="choices-label">┌─ INPUT REQUIRED ─────────────────────</div>
+    `;
+    node.choices.forEach((choice, idx) => {
+      choicesHtml += `
+        <button class="choice-btn" data-next="${choice.next}">
+          <span class="choice-num">[${idx + 1}]</span>${escapeHtml(choice.text)}
+        </button>
+      `;
+    });
+    choicesHtml += `</div>`;
+  } else {
+    choicesHtml = `<div class="skip-hint">(tap to skip)</div>`;
+  }
+
+  let html = `
+    <div class="header">
+      <span>● ${gameMeta.title.replace(/ /g, "_")}.exe</span>
+      <span class="blink">▮ GAME_${gameMeta.number}</span>
+    </div>
+    <div class="story" id="story">${storyHtml}</div>
+    ${choicesHtml}
+    <div class="footer">
+      <span>NODE: ${currentNode.toUpperCase()}</span>
+      <span>CHOICES: ${choicesMade}</span>
+      <a class="menu-link" id="menu-link">← MENU</a>
+    </div>
+  `;
+
+  root.innerHTML = html;
+
+  document.querySelectorAll(".choice-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const next = btn.dataset.next;
+      if (next === "__menu__") {
+        renderMenu();
+      } else {
+        choicesMade++;
+        currentNode = next;
+        renderNode();
+      }
+    });
+  });
+
+  const menuLink = document.getElementById("menu-link");
+  if (menuLink) {
+    menuLink.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (confirm("Return to menu? Your progress in this adventure will not be saved.")) {
+        renderMenu();
+      }
+    });
+  }
+
+  // Tap-to-skip on story area
+  const storyEl = document.getElementById("story");
+  if (storyEl && isTyping) {
+    storyEl.addEventListener("click", skipTyping);
+  }
+}
+
+function skipTyping() {
+  if (!isTyping) return;
+  clearTyping();
+  const node = STORIES[currentGame][currentNode];
+  displayedLines = node.text.slice();
+  isTyping = false;
+  drawFrame();
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// Allow tapping anywhere on body to skip typing
+document.body.addEventListener("click", (e) => {
+  if (currentScreen === "game" && isTyping) {
+    // Only skip if click wasn't on a button or link
+    if (!e.target.closest("button") && !e.target.closest("a")) {
+      skipTyping();
+    }
+  }
+});
+
+// Boot
+renderMenu();
+</script>
+</body>
+</html>
